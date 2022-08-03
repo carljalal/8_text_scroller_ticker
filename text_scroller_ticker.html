@@ -22,13 +22,15 @@
             scrollspeed = 5;
             scrollspace = 500;
             speedjump = 5;
+            currentColor = "lime";
 
             class word {
-                constructor(text, x, y) {
+                constructor(text, x, y, color) {
                     this.text = text;
                     this.x = x;
                     this.y = y;
-                    this.width = context.measureText(text).width
+                    this.color = color;
+                    this.width = context.measureText(text).width;
                 }
                 moveword = (xspeed, yspeed) => {this.x+=xspeed; this.y+=yspeed};
             }
@@ -52,7 +54,7 @@
                     scrollspace = parseInt(input.value.substring(6));
                 }
                 else if (input.value.substring(0,6) == "color "){
-                    context.fillStyle = input.value.substring(6);
+                    currentColor = input.value.substring(6);
                 }
                 else if (input.value.substring(0,5) == "font "){
                     context.font = input.value.substring(5);
@@ -81,7 +83,7 @@
                     for (i = 0; i < list.length; i++){
                         if (list[i].x + list[i].width > resetlength) resetlength = list[i].x + list[i].width + scrollspace;
                     }
-                    w = new word(input.value, resetlength, canvas.height/2);
+                    w = new word(input.value, resetlength, canvas.height/2, currentColor);
                     list.push(w);
                 }
                 input.value = "";
@@ -90,7 +92,7 @@
             context = canvas.getContext("2d");
             
             context.font = "70px Lucida Handwriting";
-            context.fillStyle = "lime";
+            context.fillStyle = currentColor;
 
             consolelog = false;
 
@@ -106,6 +108,7 @@
                 }
                 for (i = 0; i < list.length; i++){
                     if (list[i].x + list[i].width > resetlength) resetlength = list[i].width + list[i].x + scrollspace;
+                    context.fillStyle = list[i].color;
                     context.fillText(list[i].text, list[i].x, list[i].y);
                 }
                 if (consolelog) {
@@ -120,8 +123,9 @@
                     after = list[i].x;
                     if ((before > 0 && after < 0) || before == 0){
                         text = list[i].text;
+                        color = list[i].color;
                         y = list[i].y;
-                        w = new word(text, resetlength, y);
+                        w = new word(text, resetlength, y, color);
                         list.push(w);
                     }
                     if (list[i].x < -list[i].width) list.splice(i, 1);
