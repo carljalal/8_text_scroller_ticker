@@ -1,0 +1,134 @@
+<html>
+    <body>
+        <script>
+            document.body.style.background = "black";
+            canvas = document.createElement("canvas");
+            canvas.setAttribute("width","1600");
+            canvas.setAttribute("height","100");
+            document.body.append(canvas);
+
+            br = document.createElement("br");
+            document.body.append(br);
+
+            div = document.createElement("div");
+            div.innerHTML = "enter here: &nbsp";
+            div.style = "font-family: Lucida Handwriting;font-size:20px;color:darkorange";
+            document.body.append(div);
+
+            input = document.createElement("input");
+            input.setAttribute("type","textarea");
+            div.append(input);
+
+            scrollspeed = 5;
+            scrollspace = 500;
+            speedjump = 5;
+
+            class word {
+                constructor(text, x, y) {
+                    this.text = text;
+                    this.x = x;
+                    this.y = y;
+                    this.width = context.measureText(text).width
+                }
+                moveword = (xspeed, yspeed) => {this.x+=xspeed; this.y+=yspeed};
+            }
+
+            input.addEventListener("keypress",(event)=>{
+                if (event.key != "Enter") return;
+                if (input.value == "clear"){
+                    list = []
+                    input.value = "";
+                    return;
+                }
+                if (input.value.substring(0,6) == "speed"){
+                    scrollspeed = parseInt(input.value.substring(6));
+                    clearInterval(updateinterval);
+                    updateinterval = setInterval(movetext, scrollspeed);
+                }
+                else if (input.value.substring(0,10) == "speedjump "){
+                    speedjump = parseInt(input.value.substring(10));
+                }
+                else if (input.value.substring(0,6) == "space "){
+                    scrollspace = parseInt(input.value.substring(6));
+                }
+                else if (input.value.substring(0,6) == "color "){
+                    context.fillStyle = input.value.substring(6);
+                }
+                else if (input.value.substring(0,5) == "font "){
+                    context.font = input.value.substring(5);
+                    for (i = 0; i < list.length; i++) list[i].width = context.measureText(list[i].text).width;
+                }
+                else if (input.value.substring(0,10) == "canvaswidth "){
+                    f = context.font;
+                    canvas.setAttribute("width", parseInt(input.value.substring(12)));
+                    context.font = f;
+                }
+                else if (input.value == "reorganize"){
+                    aggx = 0;
+                    for (i = 0; i < list.length; i++){
+                        list[i].x = aggx;
+                        aggx += context.measureText(list[i].text).width + scrollspace;
+                    }
+                }
+                else if (input.value == "console on"){
+                    consolelog = true;
+                }
+                else if (input.value == "console off"){
+                    consolelog = false;
+                }
+                else {
+                    resetlength = canvas.width;
+                    for (i = 0; i < list.length; i++){
+                        if (list[i].x + list[i].width > resetlength) resetlength = list[i].x + list[i].width + scrollspace;
+                    }
+                    w = new word(input.value, resetlength, canvas.height/2);
+                    list.push(w);
+                }
+                input.value = "";
+            });
+
+            context = canvas.getContext("2d");
+            
+            context.font = "70px Lucida Handwriting";
+            context.fillStyle = "lime";
+
+            consolelog = false;
+
+            list = [];
+
+            movetext = () => {
+                context.clearRect(0,0,canvas.width, canvas.height);
+                if (list.length < 1) return;
+                resetlength = canvas.width;
+                if (consolelog){
+                    console.log("list length: " + list.length);
+                    console.log("finding reset length and rendering");
+                }
+                for (i = 0; i < list.length; i++){
+                    if (list[i].x + list[i].width > resetlength) resetlength = list[i].width + list[i].x + scrollspace;
+                    context.fillText(list[i].text, list[i].x, list[i].y);
+                }
+                if (consolelog) {
+                    console.log("moving word positions and checking at end");
+                }
+                for (i = 0; i < list.length; i++){
+                    before = list[i].x;
+                    list[i].moveword(-speedjump, 0);
+                    if (consolelog) {
+                        console.log("listindex: " + i + " xposition: " + list[i].x);
+                    }
+                    after = list[i].x;
+                    if ((before > 0 && after < 0) || before == 0){
+                        text = list[i].text;
+                        y = list[i].y;
+                        w = new word(text, resetlength, y);
+                        list.push(w);
+                    }
+                    if (list[i].x < -list[i].width) list.splice(i, 1);
+                }
+            }
+
+            updateinterval = setInterval(movetext, scrollspeed);
+        </script>
+    </body>
+</html>
