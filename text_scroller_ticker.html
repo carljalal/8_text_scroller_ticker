@@ -1,28 +1,193 @@
 <html>
     <body>
         <script>
+            scrollspeed = 5;
+            scrollspace = 200;
+            speedjump = 5;
+
+
             document.body.style.background = "black";
+
+            headerDiv = document.createElement("div");
+            headerDiv.style.fontFamily = "Verdana";
+            headerDiv.style.color = "white";
+            headerDiv.innerHTML = "Word Count: 0"
+            document.body.append(headerDiv);
+
             canvas = document.createElement("canvas");
             canvas.setAttribute("width","1600");
             canvas.setAttribute("height","100");
+            canvas.style.borderStyle = "dashed";
+            canvas.style.borderColor = "white";
+            canvas.style.borderRadius = "2px"
             document.body.append(canvas);
 
             br = document.createElement("br");
             document.body.append(br);
 
             div = document.createElement("div");
-            div.innerHTML = "enter here: &nbsp";
+            div.innerHTML = "enter new word here and press enter: &nbsp";
             div.style = "font-family: Lucida Handwriting;font-size:20px;color:darkorange";
             document.body.append(div);
 
             input = document.createElement("input");
-            input.setAttribute("type","textarea");
+            //input.setAttribute("type","textarea");
             div.append(input);
 
-            scrollspeed = 5;
-            scrollspace = 500;
-            speedjump = 5;
-            currentColor = "lime";
+            colorPicker = document.createElement("input");
+            colorPicker.setAttribute("type","color");
+            colorPicker.value = "#00ff00"
+            div.append(colorPicker);
+
+            // speed slider
+            speedSliderDiv = headerDiv.cloneNode(true);
+            speedSliderDiv.innerHTML = "text update speed: "
+            div.append(speedSliderDiv);
+            speedSlider = document.createElement("input");
+            speedSlider.setAttribute("type","range");
+            speedSlider.min = 0;
+            speedSlider.max = 17;
+            speedSlider.step = 1;
+            speedSlider.defaultValue = 17;
+            speedSlider.style.width = "600px"
+            speedSlider.oninput = () => {
+                if(speedSlider.value == 0) scrollspeed = 99999999;
+                if(speedSlider.value == 1) scrollspeed = 120000;
+                if(speedSlider.value == 2) scrollspeed = 60000;
+                if(speedSlider.value == 3) scrollspeed = 30000;
+                if(speedSlider.value == 4) scrollspeed = 12000;
+                if(speedSlider.value == 5) scrollspeed = 6000;
+                if(speedSlider.value == 6) scrollspeed = 3000;
+                if(speedSlider.value == 7) scrollspeed = 2000;
+                if(speedSlider.value == 8) scrollspeed = 1500;
+                if(speedSlider.value == 9) scrollspeed = 1000;
+                if(speedSlider.value == 10) scrollspeed = 640;
+                if(speedSlider.value == 11) scrollspeed = 320;
+                if(speedSlider.value == 12) scrollspeed = 160;
+                if(speedSlider.value == 13) scrollspeed = 80;
+                if(speedSlider.value == 14) scrollspeed = 40;
+                if(speedSlider.value == 15) scrollspeed = 20;
+                if(speedSlider.value == 16) scrollspeed = 10;
+                if(speedSlider.value == 17) scrollspeed = 5;
+                updateSpeed();
+                
+            }
+            speedSliderDiv.append(speedSlider);
+
+            // spacing slider
+            spacingSliderDiv = headerDiv.cloneNode(true);
+            spacingSliderDiv.innerHTML = "text spacing: "
+            spacingSliderDiv.style.fontStyle = "bolder";
+            div.append(spacingSliderDiv);
+            spacingSlider = document.createElement("input");
+            spacingSlider.setAttribute("type","range");
+            spacingSlider.min = 1;
+            spacingSlider.max = 10;
+            spacingSlider.step = 1;
+            spacingSlider.defaultValue = 5;
+            spacingSlider.style.width = "600px"
+            spacingSlider.oninput = () => {
+                if(spacingSlider.value == 1) scrollspace = 10;
+                if(spacingSlider.value == 2) scrollspace = 20;
+                if(spacingSlider.value == 3) scrollspace = 40;
+                if(spacingSlider.value == 4) scrollspace = 80;
+                if(spacingSlider.value == 5) scrollspace = 160;
+                if(spacingSlider.value == 6) scrollspace = 320;
+                if(spacingSlider.value == 7) scrollspace = 640;
+                if(spacingSlider.value == 8) scrollspace = 1280;
+                if(spacingSlider.value == 9) scrollspace = 2500;
+                if(spacingSlider.value == 10) scrollspace = 5000;
+                reorganize();
+                
+            }
+            spacingSliderDiv.append(spacingSlider);
+
+
+
+
+
+            // listify paragraph button
+            listifyButton = document.createElement("button");
+            listifyButton.style.fontFamily = "Verdana";
+            listifyButton.style.fontSize = "20px"
+            listifyButton.style.fontStyle = "bolder"
+            listifyButton.style.color = "black";
+            listifyButton.innerText = "paragraph to list!"
+            listifyButton.style.width = "200px"
+            listifyButton.style.height = "50px"
+            document.body.append(listifyButton);
+
+
+            // clear all button
+            clearButton = document.createElement("button");
+            clearButton.style.fontFamily = "Verdana";
+            clearButton.style.fontSize = "20px"
+            clearButton.style.fontStyle = "bolder"
+            clearButton.style.color = "black";
+            clearButton.innerText = "clear list!"
+            clearButton.style.width = "200px"
+            clearButton.style.height = "50px"
+            document.body.append(clearButton);
+
+
+
+
+            paragraphAreaDiv = headerDiv.cloneNode(true);
+            paragraphAreaDiv.innerHTML = "you can paste any paragraph or clutter of text in the textbox below";
+            document.body.append(paragraphAreaDiv);
+
+            paragraphArea = document.createElement("textarea");
+            paragraphArea.rows = 30;
+            paragraphArea.cols = 100;
+            document.body.append(paragraphArea);
+
+            transformedParagraphAreaDiv = headerDiv.cloneNode(true);
+            transformedParagraphAreaDiv.innerHTML = "paragraph will be parsed into list of unique words here"
+            document.body.append(transformedParagraphAreaDiv);
+
+            transformedParagraphArea = document.createElement("textarea");
+            transformedParagraphArea.rows = 30;
+            transformedParagraphArea.cols = 100;
+            document.body.append(transformedParagraphArea);
+
+            updateSpeed = () => {
+                clearInterval(updateinterval);
+                updateinterval = setInterval(movetext, scrollspeed);
+            }
+
+            addNewWord = (newWordString) => {
+                // write function which will add new word to the list
+                resetlength = canvas.width;
+                for (i = 0; i < list.length; i++){
+                    if (list[i].x + list[i].width > resetlength) resetlength = list[i].x + list[i].width + scrollspace;
+                }
+                w = new word(newWordString, resetlength, canvas.height/2, colorPicker.value);
+                list.push(w);
+                headerDiv.innerHTML = `Word Count: ${list.length}`;
+            }
+
+            transformTextToUniqueWords = (paragraph) => {
+                // keep alpha upper and lowercase letters
+                // keep spaces
+                // split by newline/space
+                paragraph = paragraph.replaceAll(";", " ");
+                paragraph = paragraph.replaceAll(",", " ");
+                paragraph = paragraph.replaceAll("/", " ");
+                paragraph = paragraph.replaceAll("\\", " ");
+                paragraph = paragraph.trim();
+                paragraph = paragraph.replace(/ +(?= )/g,'');
+                paragraph = paragraph.replaceAll(" ", "\n");
+                paragraphArray = paragraph.split("\n");
+                paragraphArray = paragraphArray.filter((v,i,a) => a.indexOf(v) === i);
+                paragraphArray = paragraphArray.filter((v,i,a) => v != "");
+                
+                transformedParagraphArea.value = "";
+                paragraphArray.forEach(v => transformedParagraphArea.value += v + "\n");
+                return paragraphArray;
+            }
+
+            
+            //currentColor = "lime";
 
             class word {
                 constructor(text, x, y, color) {
@@ -37,9 +202,14 @@
 
             input.addEventListener("keypress",(event)=>{
                 if (event.key != "Enter") return;
+                if (input.value == ""){
+                    uniqueWordsArray = transformTextToUniqueWords(paragraphArea.value);
+                    uniqueWordsArray.forEach(v => addNewWord(v));
+                }
                 if (input.value == "clear"){
-                    list = []
+                    list.length = 0;
                     input.value = "";
+                    headerDiv.innerHTML = "Count: 0";
                     return;
                 }
                 if (input.value.substring(0,6) == "speed"){
@@ -54,7 +224,7 @@
                     scrollspace = parseInt(input.value.substring(6));
                 }
                 else if (input.value.substring(0,6) == "color "){
-                    currentColor = input.value.substring(6);
+                    colorPicker.value = input.value.substring(6);
                 }
                 else if (input.value.substring(0,5) == "font "){
                     context.font = input.value.substring(5);
@@ -66,11 +236,7 @@
                     context.font = f;
                 }
                 else if (input.value == "reorganize"){
-                    aggx = 0;
-                    for (i = 0; i < list.length; i++){
-                        list[i].x = aggx;
-                        aggx += context.measureText(list[i].text).width + scrollspace;
-                    }
+                    reorganize();
                 }
                 else if (input.value == "console on"){
                     consolelog = true;
@@ -79,20 +245,23 @@
                     consolelog = false;
                 }
                 else {
-                    resetlength = canvas.width;
-                    for (i = 0; i < list.length; i++){
-                        if (list[i].x + list[i].width > resetlength) resetlength = list[i].x + list[i].width + scrollspace;
-                    }
-                    w = new word(input.value, resetlength, canvas.height/2, currentColor);
-                    list.push(w);
+                    addNewWord(input.value);
                 }
                 input.value = "";
             });
 
+            reorganize = () => {
+                aggx = 0;
+                for (i = 0; i < list.length; i++){
+                    list[i].x = aggx;
+                    aggx += context.measureText(list[i].text).width + scrollspace;
+                }
+            }
+
             context = canvas.getContext("2d");
             
             context.font = "70px Lucida Handwriting";
-            context.fillStyle = currentColor;
+            context.fillStyle = colorPicker.value;
 
             consolelog = false;
 
