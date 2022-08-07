@@ -112,7 +112,7 @@
             listifyButton.style.fontSize = "20px"
             listifyButton.style.fontStyle = "bolder"
             listifyButton.style.color = "black";
-            listifyButton.innerText = "paragraph to list!"
+            listifyButton.innerText = "parse paragraph!"
             listifyButton.style.width = "200px"
             listifyButton.style.height = "50px"
             document.body.append(listifyButton);
@@ -290,14 +290,15 @@
                         console.log("listindex: " + i + " xposition: " + list[i].x);
                     }
                     after = list[i].x;
-                    if ((before > 0 && after < 0) || before == 0){
+                   
+                    if (list[i].x < -list[i].width) {
                         text = list[i].text;
                         color = list[i].color;
                         y = list[i].y;
                         w = new word(text, resetlength, y, color);
                         list.push(w);
+                        list.splice(i, 1);
                     }
-                    if (list[i].x < -list[i].width) list.splice(i, 1);
                 }
             }
 
