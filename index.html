@@ -276,7 +276,7 @@
                     console.log("finding reset length and rendering");
                 }
                 for (i = 0; i < list.length; i++){
-                    if (list[i].x + list[i].width > resetlength) resetlength = list[i].width + list[i].x + scrollspace;
+                    if (list[i].x + list[i].width + scrollspace> resetlength) resetlength = list[i].width + list[i].x + scrollspace;
                     context.fillStyle = list[i].color;
                     context.fillText(list[i].text, list[i].x, list[i].y);
                 }
